@@ -5,18 +5,6 @@ const client = new MongoClient(uri);
 var _userDb;
 var _claimDb;
 
-// export function connectToServer(callback) {
-//   client.connect(function (err, db) {
-//     // Verify we got a good "db" object
-//     if (db) {
-//       //todo: change to db-name of userinfo
-//       _userDb = db.db("fact-checking-website");
-//       console.log("Successfully connected to MongoDB.");
-//     }
-//     return callback(err);
-//   });
-// }
-
 module.exports = {
   getUserDb: function () {
     if(_userDb===undefined) {

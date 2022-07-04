@@ -1,4 +1,3 @@
-const { setInternalBufferSize } = require("bson");
 const { response } = require("express");
 const express = require("express");
 const conndb = require("../connections/connDb");
