@@ -1,0 +1,16 @@
+{
+  "name": "fact-checking-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:Boxuan-Wang/fact-checking-server.git",
+  "author": "Boxuan Wang <bw447@cam.ac.uk>",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "date": "^2.0.0",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "mongodb": "^4.7.0",
+    "nodemailer": "^6.7.5"
+  }
+}
