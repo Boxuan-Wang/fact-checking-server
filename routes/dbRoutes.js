@@ -13,26 +13,14 @@ const dbRoutes = express.Router();
 //human fact-check: daily pull from google api
 //                  search from the results
 
-//to return all records
-// dbRoutes.route("/record").get(function (req,res) {
-//     let db_connect = getUserDb();
-//     db_connect
-//         .collection("records")
-//         .find({})
-//         .toArray(function (err,result) {
-//             if (err) throw err;
-//             res.json(result);
-//         })
-
-// });
 
 /**
  * Server for get popular claims.
  */
 dbRoutes.route("/popular").get(function (req,res) {
-    let db_connect = conndb.getClaimDb();
+    let db_connect = conndb.getDb();
     db_connect
-    .collection("...")
+    .collection("checkedClaims")
     .find({})
     .toArray(function (err, result) {
         if (err) throw err;
@@ -45,41 +33,39 @@ dbRoutes.route("/popular").get(function (req,res) {
  * For user sign in.
  */
 dbRoutes.route("/signIn").put(function(req, res) {
-    let db_connect = conndb.getUserDb();
+    let db_connect = conndb.getDb();
     let query = {userName: req.body.userName};
 
     db_connect
-    .collection("...")
-    .findOne(query, function(err,result) {
+    .collection("users")
+    .findOne(query, async function(err,result) {
         if(err) throw err;
         else {
             const hashed = result.hashedPassword;
             const salt = result.salt;
 
-            //todo: replace + with hash algo
-            const correct = ((req.body.passwd+salt)===hashed);
+            const inputPasswdHashed = 
+                await crypto.subtle.digest('SHA-256',req.body.passwd+salt);
+            const correct = inputPasswdHashed===hashed;
             res.json(correct);
         }
     });
 });
 
 //todo: need to check email existence before add
-dbRoutes.route("/signUp").put(function(req,res) {
-    let db_connect = conndb.getClaimDb();
+dbRoutes.route("/signUp").put(async function(req,res) {
+    let db_connect = conndb.getDb();
     let newSalt = Math.random().toString(36).replace(/[^a-z]+/g,'').substring(8);
-    let hashed = newSalt + req.body.passwd;
+    let hashed = await crypto.subtle.digest('SHA-256', req.body.passwd + newSalt);
     let newUser = {
         userName: req.body.userName,
         hashedPassword: hashed,
         salt: newSalt
     };
-    db_connect.collection("...").insertOne(newUser, function (err,result) {
+    db_connect.collection("users").insertOne(newUser, function (err,result) {
         if(err) throw err;
         res.json(res);
     });
 });
-
-
-
 
 module.exports = dbRoutes;
