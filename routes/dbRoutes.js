@@ -1,7 +1,9 @@
 const { response } = require("express");
 const express = require("express");
 const conndb = require("../connections/connDb");
+const crypto = require("node:crypto");
 
+require("dotenv").config({ path: "./config.env" });
 const dbRoutes = express.Router();
 //account function required: get hashed password/salt by email
 //                   get _id by email
@@ -32,7 +34,7 @@ dbRoutes.route("/popular").get(async function (req,res) {
 /**
  * For user sign in.
  */
-dbRoutes.route("/signIn").put(async function(req, res) {
+dbRoutes.route("/signIn").post(async function(req, res) {
     let db_connect = await conndb.getDb();
     let query = {userName: req.body.userName};
 
@@ -53,7 +55,7 @@ dbRoutes.route("/signIn").put(async function(req, res) {
 });
 
 //todo: need to check email existence before add
-dbRoutes.route("/signUp").put(async function(req,res) {
+dbRoutes.route("/signUp").post(async function(req,res) {
     let db_connect = conndb.getDb();
     let newSalt = Math.random().toString(36).replace(/[^a-z]+/g,'').substring(8);
     let hashed = await crypto.subtle.digest('SHA-256', req.body.passwd + newSalt);
@@ -64,7 +66,7 @@ dbRoutes.route("/signUp").put(async function(req,res) {
     };
     db_connect.collection("users").insertOne(newUser, function (err,result) {
         if(err) throw err;
-        res.json(res);
+        else res.json(true);
     });
 });
 

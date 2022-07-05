@@ -6,9 +6,9 @@ var express = require('express');
 var app = express();
 app.use(dbRoutes);
 
-afterEach(() => {
+afterEach(async () => {
     const testSignUpUserQuery = {userName: "testsignup@test.com"};
-    connDb.getDb().collection('users').deleteOne(testSignUpUserQuery);
+    await connDb.getDb().collection('users').deleteOne(testSignUpUserQuery);
 });
 
 test('test sign up successful', async () => {
