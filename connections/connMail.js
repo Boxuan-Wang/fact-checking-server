@@ -14,10 +14,10 @@ module.exports = {
         else {
             transporter = nodemailer.createTransport(
                 {
-                    service: 'gmail',
+                    service: process.env.EMAIL_SERVICE,
                     auth: {
-                    user: 'youremail@gmail.com',
-                    pass: 'yourpassword'
+                        user: process.env.MAIL_ADDRESS,
+                        pass: process.env.PASSWORD
                     }
                 }
             );

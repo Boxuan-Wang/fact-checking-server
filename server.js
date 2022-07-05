@@ -8,8 +8,8 @@ app.use(cors());
 app.use(express.json());
 app.use(require("./routes/dbRoutes"));
 app.use(require("./routes/emailRoutes"))
-// get driver connection
 
+// get driver connection
 app.listen(port, () => {
     console.log("Start server! On port: " + port)
   })
