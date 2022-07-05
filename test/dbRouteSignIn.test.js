@@ -1,8 +1,7 @@
 const dbRoutes = require("../routes/dbRoutes");
-const supertest = require("supertest");
+const request = require("supertest");
 
 var express = require('express');
-const { request } = require("express");
 var app = express();
 app.use(dbRoutes);
 

@@ -1,9 +1,8 @@
-const { MongoClient } = require("mongodb");
+const express = require('express');
+const MongoClient = require('mongodb').MongoClient;
 const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri);
 
 var _Db;
-var _claimDb;
 
 module.exports = {
   // getUserDb: function () {
@@ -34,14 +33,15 @@ module.exports = {
   //     return _claimDb;
   //   }
   // },
-  getDb: function() {
+  getDb: async function() {
     if(_Db===undefined) {
-      client.connect(function (err,db) {
-        if(err) throw err;
-        if(db) {
-          _claimDb = db.db("fact-checking-website");
-        }
-      });
+      // const client = await MongoClient.connect(uri);
+      // _Db = client.db(fact-checking-website);
+      await MongoClient
+      .connect(uri)
+      .then(client => _Db = client.db('fact-checking-website'))
+      .catch(err => console.error(err));
+
       return _Db;
     }
     else {

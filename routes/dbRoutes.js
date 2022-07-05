@@ -17,9 +17,9 @@ const dbRoutes = express.Router();
 /**
  * Server for get popular claims.
  */
-dbRoutes.route("/popular").get(function (req,res) {
-    let db_connect = conndb.getDb();
-    db_connect
+dbRoutes.route("/popular").get(async function (req,res) {
+    let db_connect = await conndb.getDb();
+    await db_connect
     .collection("checkedClaims")
     .find({})
     .toArray(function (err, result) {
@@ -32,8 +32,8 @@ dbRoutes.route("/popular").get(function (req,res) {
 /**
  * For user sign in.
  */
-dbRoutes.route("/signIn").put(function(req, res) {
-    let db_connect = conndb.getDb();
+dbRoutes.route("/signIn").put(async function(req, res) {
+    let db_connect = await conndb.getDb();
     let query = {userName: req.body.userName};
 
     db_connect
