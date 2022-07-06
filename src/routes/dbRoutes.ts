@@ -19,6 +19,7 @@ dbRoutes.route("/popular").get(async (req, res) => {
 dbRoutes.route("/signIn").post(async (req,res) => {
     let db_connect = await getDb();
     if(req===null) throw new Error("Null req.");
+    console.log(req.body);
     let query = {userName: req.body.userName};
     const hash = createHash('sha256');
 
