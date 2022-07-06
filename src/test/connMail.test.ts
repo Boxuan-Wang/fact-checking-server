@@ -1,6 +1,6 @@
-const connmail = require("../connections/connMail");
-const nodemailer = require("nodemailer");
-const express = require("express");
+import connmail from "../connections/connmail";
+import nodemailer from "nodemailer";
+import express from "express";
 var request  = require('supertest');
 
 test('test connection to mail server', async () => {

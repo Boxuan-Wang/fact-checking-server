@@ -1,10 +1,10 @@
-const dbRoutes = require("../routes/dbRoutes");
-const request = require("supertest");
-const connDb = require("../connections/connDb");
+import dbRoutes from "../routes/dbRoutes";
+import request from "supertest";
+import connDb from "../connections/connDb";
 var express = require('express');
 
 var app = express();
-app.use(dbRoutes);
+app.use(require("../routes/dbRoutes"));
 
 // test('test get /popular ', async () => {
 //     const response = await request(app).get("/popular");

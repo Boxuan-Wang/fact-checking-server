@@ -1,11 +1,12 @@
 {
   "name": "fact-checking-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "repository": "git@github.com:Boxuan-Wang/fact-checking-server.git",
   "author": "Boxuan Wang <bw447@cam.ac.uk>",
   "license": "MIT",
   "dependencies": {
+    "@types/cors": "^2.8.12",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "date": "^2.0.0",
@@ -17,10 +18,18 @@
     "nodemailer": "^6.7.5"
   },
   "scripts": {
-    "test": "jest"
+    "build": "tsc",
+    "test": "jest",
+    "start": ""
   },
   "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/jest": "^28.1.4",
+    "@types/nodemailer": "^6.4.4",
+    "@types/supertest": "^2.0.12",
     "jest": "^28.1.2",
-    "supertest": "^6.2.4"
+    "supertest": "^6.2.4",
+    "ts-jest": "^28.0.5",
+    "typescript": "^4.7.4"
   }
 }

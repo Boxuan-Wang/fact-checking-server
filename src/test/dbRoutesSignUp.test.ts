@@ -1,6 +1,6 @@
-const dbRoutes = require("../routes/dbRoutes");
-const request = require("supertest");
-const connDb = require("../connections/connDb");
+import dbRoutes from "../routes/dbRoutes";
+import request from "supertest";
+import getDb  from "../connections/connDb";
 var express = require('express');
 
 var app = express();
@@ -8,7 +8,7 @@ app.use(dbRoutes);
 
 afterEach(async () => {
     const testSignUpUserQuery = {userName: "testsignup@test.com"};
-    await connDb.getDb().collection('users').deleteOne(testSignUpUserQuery);
+    (await getDb()).collection('users').deleteOne(testSignUpUserQuery);
 });
 
 test('test sign up successful', async () => {

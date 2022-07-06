@@ -1,7 +1,6 @@
-const dbRoutes = require("../routes/dbRoutes");
-const request = require("supertest");
-
-var express = require('express');
+import request from "supertest";
+import dbRoutes from "../routes/dbRoutes";
+import express from 'express';
 var app = express();
 app.use(dbRoutes);
 
@@ -18,7 +17,7 @@ test('test signIn success', async () => {
     const response = 
         await request(app).post("/signIn").send(userInfo);
 
-    exptect(response.body).toBe(true);
+    expect(response.body).toBe(true);
 });
 
 test('test signIn fail with unknown password', async () => {
@@ -29,7 +28,7 @@ test('test signIn fail with unknown password', async () => {
 
     const response = await request(app).post("/signIn").send(userInfo);
 
-    exprect(response.body).toBe(false);
+    expect(response.body).toBe(false);
 });
 
 test('test signIn fail with wrong password', async () => {
@@ -41,6 +40,6 @@ test('test signIn fail with wrong password', async () => {
     const response = 
         await request(app).post("/signIn").send(userInfo);
 
-    exptect(response.body).toBe(false);
+    expect(response.body).toBe(false);
 });
 
