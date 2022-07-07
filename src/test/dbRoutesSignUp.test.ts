@@ -9,6 +9,7 @@ import { Server } from "http";
 let app = express();
 app.use(dbRoutes);
 app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({extended: true}));
 let testServer: Server;
 
 beforeAll(() => {
@@ -19,9 +20,26 @@ afterAll(() => {
     testServer.close();
 });
 
+beforeEach(async () => {
+    const testUserInfo = {
+        userName: "test@test.com",
+        hashedPassword:"5ff6689115c8eb335d0f06a52d2fcbfca19a74296626e3fd607f623de606d886", //hash in sha256 of 12345678abcdefgh
+        salt:"abcdefgh"
+    };
+
+    await (await getDb()).collection('users').insertOne(testUserInfo);
+});
+
 afterEach(async () => {
     const testSignUpUserQuery = {userName: "testsignup@test.com"};
-    (await getDb()).collection('users').deleteOne(testSignUpUserQuery);
+    const testUserInfo = {
+        userName: "test@test.com",
+        hashedPassword:"5ff6689115c8eb335d0f06a52d2fcbfca19a74296626e3fd607f623de606d886", //hash in sha256 of 12345678abcdefgh
+        salt:"abcdefgh"
+    };
+    const dbConn = await getDb();
+    await dbConn.collection('users').deleteOne(testSignUpUserQuery);
+    await dbConn.collection('users').deleteMany({userName:"test@test.com"});
 });
 
 test('test sign up successful', async () => {
@@ -31,7 +49,7 @@ test('test sign up successful', async () => {
     };
     const response = await request(app).post("/signUp").send(userInfo);
 
-    expect(response).toBe(true);
+    expect(response.body).toBe(true);
 });
 
 test('test sign up fail with used email', async () => {
@@ -41,5 +59,5 @@ test('test sign up fail with used email', async () => {
     };
     const response = await request(app).post("/signUp").send(userInfo);
 
-    expect(response).toBe(false);
+    expect(response.body).toBe(false);
 });
