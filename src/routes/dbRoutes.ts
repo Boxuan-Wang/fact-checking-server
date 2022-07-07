@@ -43,7 +43,6 @@ dbRoutes.route("/signIn").post(async (req,res) => {
                 hash.update(req.body.passwd+salt);
                 const inputPasswdHashed = hash.digest('hex');
                 const correct = inputPasswdHashed===hashed;
-                console.log("Comparing hashed: " + hashed + ",\n" + inputPasswdHashed + "\nsalt: " + salt);
                 res.send(correct);
             }
             else {
@@ -58,15 +57,12 @@ dbRoutes.route("/signUp").post(async function(req,res) {
     //check email not used
     let query = {userName: req.body.userName};
 
-    console.log("Sign up:" + query.userName);
-
     await db_connect
     .collection("users")
     .findOne(query, function (err, result) {
         if(err) throw err;
         if(result) {
-           //todo: test
-            console.log("Sign up with used email.");
+
             res.send(false);
         }
         else {
@@ -80,7 +76,6 @@ dbRoutes.route("/signUp").post(async function(req,res) {
                 hashedPassword: hashed,
                 salt: newSalt
             };
-            console.log("new user:" + newUser.userName)
             db_connect.collection("users").insertOne(newUser, function (err,result) {
                 if(err) throw err;
                 else res.send(true);

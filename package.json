@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "start": ""
+    "start": "node"
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.18.6",

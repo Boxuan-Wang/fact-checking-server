@@ -11,21 +11,23 @@ emailRoutes.use(bp.urlencoded({extended: true}));
 
 emailRoutes.route("/email").post(
     async function(req,res):Promise<void> {
+        const emailReceiver = req.body.email;
         let emailService = await getEmailService();
         const code:string = Math.random().toString().substring(2,6);
-        const mailOption = {
+
+        const message = {
             from: senderEmail,
-            to: req.body,
+            to: emailReceiver,
             subject: "Verify your email for averitect",
-            text: "Your verification code for email" + req.body + "is" + code + "/n",
+            text: "Your verification code for email <" + emailReceiver + "> is " + code + ".\n",
         };
 
-        emailService.sendMail(mailOption, function (err, info) {
+        emailService.sendMail(message, function (err, info) {
             if(err) {
-                res.send(err);
+                res.json(err);
             }
             else {
-                res.send({veriCode:code});
+                res.json({veriCode:code});
             }
         });
     }

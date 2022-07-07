@@ -11,7 +11,6 @@ app.use(emailRoutes);
 app.use(bp.json());
 app.use(bp.urlencoded({extended:true}));
 let testServer:Server;
-
 let mailService:nodemailer.Transporter;
 beforeAll(async () => {
     mailService = await connmail();
@@ -22,6 +21,7 @@ afterAll(() => {
     mailService.close();
     testServer.close();
 });
+
 
 test('test connection is valid', async () => {
     let succ:boolean = false;
@@ -34,21 +34,21 @@ test('test connection is valid', async () => {
         else {
             succ = true;
         }
+        expect(succ).toBe(true);
     });
-    expect(succ).toBe(true);
-
 });
 
 test('test: try sending email', async () => {
-    const desEmail = "boxuan2001@qq.com";;
+    const desEmail = "boxuan2001@qq.com";
 
     const response = await request(app)
-    .post("email")
-    .send(desEmail)
+    .post("/email")
+    .send({email:desEmail})
     .set('Accept', 'application/json');
 
+    console.log("Generated verification code:" + response.body.toString());
     console.log(response.body);
-    const code = parseInt(response.body);
+    const code = parseInt(response.body.veriCode);
     const valid =  code >=0 && code <10000;
     expect(valid).toBe(true);
 });
