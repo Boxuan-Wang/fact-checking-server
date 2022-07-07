@@ -9,6 +9,11 @@ const emailRoutes = Router();
 emailRoutes.use(bp.json());
 emailRoutes.use(bp.urlencoded({extended: true}));
 
+/**
+ * POST /email
+ * For sending users verification code when they signing up
+ * request: {email}, response: {veriCode}
+ */
 emailRoutes.route("/email").post(
     async function(req,res):Promise<void> {
         const emailReceiver = req.body.email;

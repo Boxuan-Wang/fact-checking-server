@@ -10,6 +10,11 @@ config({ path: "./config.env" });
 const dbRoutes:Router = Router();
 dbRoutes.use(bp.json());
 dbRoutes.use(bp.urlencoded({extended: true}));
+
+/**
+ * GET /popular 
+ * For getting popular checked results. Still in development.
+ */
 dbRoutes.route("/popular").get(async (req, res) => {
     let db_connect = await getDb();
     await db_connect
@@ -21,6 +26,10 @@ dbRoutes.route("/popular").get(async (req, res) => {
     });
 });
 
+/**
+ * POST /signIn
+ * For sign in, request: {userName, passwd}, response: true/false
+ */
 dbRoutes.route("/signIn").post(async (req,res) => {
     let db_connect = await getDb();
     if(req===null) throw new Error("Null req.");
@@ -52,12 +61,17 @@ dbRoutes.route("/signIn").post(async (req,res) => {
     });
 })
 
+
+/**
+ * POST /signUP
+ * For user sign up, request: {userName, passwd}, response: true/false
+ */
 dbRoutes.route("/signUp").post(async function(req,res) {
     const db_connect = await getDb();
     //check email not used
     let query = {userName: req.body.userName};
 
-    await db_connect
+    db_connect
     .collection("users")
     .findOne(query, function (err, result) {
         if(err) throw err;
