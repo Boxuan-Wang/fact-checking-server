@@ -1,14 +1,15 @@
 import nodemailer, { Transporter } from "nodemailer";
 require("dotenv").config({ path: "./config.env" });
 
-let transporter: import("nodemailer/lib/mailer") | undefined;
+let transporter: import("nodemailer/lib/mailer");
 
 
-export default function getEmailService(newTransporterRequired:boolean=false): Transporter {
-    if(transporter!==undefined&&!newTransporterRequired) {
-        return transporter;
-    }
-    else {
+export default async function getEmailService(newTransporterRequired:boolean=false): Promise<Transporter> {
+    const validConn = transporter!==undefined 
+        && transporter !==null
+        && await transporter.verify();
+
+    if(newTransporterRequired||!validConn){
         transporter = nodemailer.createTransport(
             {
                 service: process.env.EMAIL_SERVICE,
@@ -18,6 +19,9 @@ export default function getEmailService(newTransporterRequired:boolean=false): T
                 }
             }
         );
+        return transporter;
+    }
+    else {
         return transporter;
     }
 }
