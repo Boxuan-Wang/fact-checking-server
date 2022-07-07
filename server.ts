@@ -1,4 +1,4 @@
-import express, { json } from "express";
+import express from "express";
 import dbRoutes from "./src/routes/dbRoutes";
 import emailRoutes from "./src/routes/emailRoutes";
 import cors from "cors";
@@ -9,7 +9,6 @@ const app = express();
 config({ path: "./config.env" });
 const port = process.env.PORT || 5000;
 app.use(cors());
-app.use(json());
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended: true}));
 app.use(dbRoutes);
@@ -19,3 +18,6 @@ app.use(emailRoutes);
 app.listen(port, () => {
     console.log("Start server! On port: " + port)
   })
+
+  export default app;
+  

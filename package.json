@@ -1,7 +1,7 @@
 {
   "name": "fact-checking-server",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "./build/server.js",
   "repository": "git@github.com:Boxuan-Wang/fact-checking-server.git",
   "author": "Boxuan Wang <bw447@cam.ac.uk>",
   "license": "MIT",
@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "start": "node"
+    "start": "node ."
   },
   "devDependencies": {
     "@babel/preset-typescript": "^7.18.6",
