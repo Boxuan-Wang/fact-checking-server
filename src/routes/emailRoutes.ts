@@ -6,7 +6,7 @@ const emailRoutes = Router();
 emailRoutes.route("/email").post(
     function(req,res):void {
         let emailService = getEmailService();
-        const code:string = Math.random().toString(10).substring(4);
+        const code:string = Math.random().toString().substring(2,6);
         const mailOption = {
             from: "",
             to: req.body,

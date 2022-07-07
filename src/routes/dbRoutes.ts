@@ -70,7 +70,7 @@ dbRoutes.route("/signUp").post(async function(req,res) {
             res.send(false);
         }
         else {
-            let newSalt:string = Math.min(Math.floor(Math.random()*10000),1000).toString();
+            let newSalt:string = Math.random().toString().substring(2,6);
             const hash = createHash('sha256');
             hash.update(req.body.passwd + newSalt);
             const hashed = hash.digest('hex');
