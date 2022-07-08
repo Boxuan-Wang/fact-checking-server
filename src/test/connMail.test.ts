@@ -43,7 +43,7 @@ test('test: try sending email', async () => {
 
     const response = await request(app)
     .post("/email")
-    .send({email:desEmail})
+    .send(JSON.stringify({email:desEmail}))
     .set('Accept', 'application/json');
 
     console.log("Generated verification code:" + response.body.toString());
