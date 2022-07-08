@@ -47,9 +47,21 @@ test('test sign up successful', async () => {
         userName:"testsignup@test.com",
         passwd: "12345678"
     };
-    const response = await request(app).post("/signUp").send(JSON.stringify(userInfo));
+    const response = await request(app).post("/signUp").send(userInfo);
 
     expect(response.body).toBe(true);
+});
+
+test('test sign up successful followed by signIn', async () => {
+    const userInfo = {
+        userName:"testsignup@test.com",
+        passwd: "12345678"
+    };
+    const response_up = await request(app).post("/signUp").send(userInfo);
+    const response_in = await request(app).post("/signIn").send (userInfo);
+
+    expect(response_up.body).toBe(true);
+    expect(response_in.body).toBe(true);
 });
 
 test('test sign up fail with used email', async () => {
@@ -57,7 +69,7 @@ test('test sign up fail with used email', async () => {
         userName:"test@test.com",
         passwd: "12345678"
     };
-    const response = await request(app).post("/signUp").send(JSON.stringify(userInfo));
+    const response = await request(app).post("/signUp").send(userInfo);
 
     expect(response.body).toBe(false);
 });
@@ -72,7 +84,7 @@ test('test delete user', async () => {
 
     const response = 
         await request(app).post("/deleteUser")
-        .send(JSON.stringify({userName: toDeleteUserInfo.userName}));
+        .send({userName: toDeleteUserInfo.userName});
     
     expect(response.body).toBe(true);
     

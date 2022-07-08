@@ -29,11 +29,13 @@ emailRoutes.route("/email").post(
 
         emailService.sendMail(message, function (err, info) {
             if(err) {
+                console.error(err);
+                console.log(message);
                 res.json(err);
             }
             else {
-                res.json({veriCode:code});
                 console.log("send email to: " + emailReceiver);
+                res.json({veriCode:code});
             }
         });
     }

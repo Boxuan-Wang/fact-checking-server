@@ -49,7 +49,7 @@ test('test signIn success', async () => {
     const response = 
         await request(app)
         .post("/signIn")
-        .send(JSON.stringify(userInfo))
+        .send(userInfo)
         .set('Accept', 'application/json');
 
     console.log("signIn success test: " + response.body);
@@ -65,7 +65,7 @@ test('test signIn fail with unknown password', async () => {
     const response = 
         await request(app)
         .post("/signIn")
-        .send(JSON.stringify(userInfo))
+        .send(userInfo)
         .set('Accept', 'application/json');
         
     expect(response.body).toBe(false);
@@ -80,7 +80,7 @@ test('test signIn fail with wrong password', async () => {
     const response = 
         await request(app)
         .post("/signIn")
-        .send(JSON.stringify(userInfo))
+        .send(userInfo)
         .set('Accept', 'application/json');
     console.log("signIn wrong password test: " + response.body);
     expect(response.body).toBe(false);

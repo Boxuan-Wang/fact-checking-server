@@ -104,7 +104,7 @@ dbRoutes.route("/signUp").post(async function(req,res) {
 dbRoutes.route("/deleteUser").post(async function(req,res) {
     const db_connect = await getDb();
     const query = {userName: req.body.userName};
-    db_connect.collection("users").deleteMany(query, function(err,result) {
+    db_connect.collection("users").deleteOne(query, function(err,result) {
         if(err) throw err;
         else {
             res.send(true);

@@ -39,11 +39,11 @@ test('test connection is valid', async () => {
 });
 
 test('test: try sending email', async () => {
-    const desEmail = "boxuan2001@qq.com";
+    const desEmail = "wboxuan@yahoo.com";
 
     const response = await request(app)
     .post("/email")
-    .send(JSON.stringify({email:desEmail}))
+    .send({email:desEmail})
     .set('Accept', 'application/json');
 
     console.log("Generated verification code:" + response.body.toString());
