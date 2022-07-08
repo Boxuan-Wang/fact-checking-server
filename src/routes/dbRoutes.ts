@@ -23,6 +23,7 @@ dbRoutes.route("/popular").get(async (req, res) => {
     //     if(err) throw err;
     //     res.json(result);
     // });
+    console.log("Send popular.");
     res.send("This a popular page.");
 });
 
