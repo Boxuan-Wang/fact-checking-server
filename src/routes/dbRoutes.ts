@@ -15,14 +15,15 @@ dbRoutes.use(bp.urlencoded({extended: true}));
  * For getting popular checked results. Still in development.
  */
 dbRoutes.route("/popular").get(async (req, res) => {
-    let db_connect = await getDb();
-    await db_connect
-    .collection("checkedClaims")
-    .find({})
-    .toArray(function(err,result) {
-        if(err) throw err;
-        res.json(result);
-    });
+    // let db_connect = await getDb();
+    // await db_connect
+    // .collection("checkedClaims")
+    // .find({})
+    // .toArray(function(err,result) {
+    //     if(err) throw err;
+    //     res.json(result);
+    // });
+    res.send("This a popular page.");
 });
 
 /**
