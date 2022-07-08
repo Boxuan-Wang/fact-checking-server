@@ -61,3 +61,19 @@ test('test sign up fail with used email', async () => {
 
     expect(response.body).toBe(false);
 });
+
+test('test delete user', async () => {
+    const toDeleteUserInfo = {
+        userName: "toDelete@test.com",
+        hashedPassword:"5ff6689115c8eb335d0f06a52d2fcbfca19a74296626e3fd607f623de606d886", //hash in sha256 of 12345678abcdefgh
+        salt:"abcdefgh"
+    };
+    await (await getDb()).collection('users').insertOne(toDeleteUserInfo);
+
+    const response = 
+        await request(app).post("/deleteUser")
+        .send({userName: toDeleteUserInfo.userName});
+    
+    expect(response.body).toBe(true);
+    
+})

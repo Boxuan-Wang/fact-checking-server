@@ -3,7 +3,6 @@ import getDb from "../connections/connDb";
 import { createHash } from "node:crypto";
 import { config } from "dotenv";
 import bp from "body-parser";
-import { IntegerType } from "mongodb";
 
 config({ path: "./config.env" });
 
@@ -52,6 +51,7 @@ dbRoutes.route("/signIn").post(async (req,res) => {
                 hash.update(req.body.passwd+salt);
                 const inputPasswdHashed = hash.digest('hex');
                 const correct = inputPasswdHashed===hashed;
+                console.log("User " + query.userName + " sign in.");
                 res.send(correct);
             }
             else {
@@ -92,8 +92,23 @@ dbRoutes.route("/signUp").post(async function(req,res) {
             };
             db_connect.collection("users").insertOne(newUser, function (err,result) {
                 if(err) throw err;
-                else res.send(true);
+                else {
+                    res.send(true);
+                    console.log("User " + query.userName + " sign up.");
+                }
             });
+        }
+    });
+});
+
+dbRoutes.route("/deleteUser").post(async function(req,res) {
+    const db_connect = await getDb();
+    const query = {userName: req.body.userName};
+    db_connect.collection("users").deleteMany(query, function(err,result) {
+        if(err) throw err;
+        else {
+            res.send(true);
+            console.log("Deleted user:" + query.userName);
         }
     });
 });

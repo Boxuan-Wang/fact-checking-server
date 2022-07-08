@@ -33,6 +33,7 @@ emailRoutes.route("/email").post(
             }
             else {
                 res.json({veriCode:code});
+                console.log("send email to: " + emailReceiver);
             }
         });
     }
