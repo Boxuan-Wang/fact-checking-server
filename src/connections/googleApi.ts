@@ -130,12 +130,27 @@ async function fetch_recent_sample(publishers: Set<string>) {
         let pairs = await get_publisher_sightings(pub);
         console.log(`Got ${pairs.length} claim-sentence pairs from ${pub}. `);
         for (let p of pairs) {
-            //put p into database
-            db.collection(human_claim_db_collectin).insertOne(p, function(err, result) {
-                if(err) {
-                    console.error(err);
+            //put p into database, if p exit update, otherwise insert. upsert = true
+            db.collection(human_claim_db_collectin)
+            .updateOne(
+                {claim_id: p.claim_id},
+                {
+                    $set: {
+                        claim_org: p.claim_org,
+                        claim_text: p.claim_text,
+                        claim_url: p.claim_url,
+                        text: p.text,
+                        publication: p.publication,
+                        publication_date: p.publication_date
+                    }
+                },
+                {upsert: true},
+                function (err, result) {
+                    if(err) {
+                        console.error(err);
+                    }
                 }
-            });
+            );
         }
     }
 }
