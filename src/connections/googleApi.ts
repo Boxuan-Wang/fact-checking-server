@@ -1,6 +1,7 @@
 require("dotenv").config({ path: "./config.env" });
 import  {ApiClaim, Publisher, ClaimReview, ApiResponse, StoreClaim} from "./apiTypes"; 
 import {URLSearchParams} from "url";
+import fetch, { Response } from "node-fetch";
 import bp from "body-parser";
 import { createHash } from "crypto";
 import getDb from "./connDb";
@@ -17,7 +18,7 @@ async function find_publisher(query:string, max_age: number): Promise<string[]> 
     param.append("key", API_key);
 
     let r:Response = await fetch(url_google + '?' + param.toString());
-    let rj:ApiResponse = await r.json();
+    let rj:ApiResponse = <ApiResponse> await r.json(); 
     let claims:ApiClaim[] = rj.claims;
 
     let ret: string[] = [];
@@ -39,7 +40,7 @@ async function find_publisher(query:string, max_age: number): Promise<string[]> 
             //get the next page
             param.set("pageToken", next_page);
             r = await fetch(url_google + '?' + param.toString());
-            claims = (await r.json())["claims"];
+            claims = (<ApiResponse> await r.json()).claims;
             if(!claims || claims.length === 0) {
                 console.log("No more page.");
                 finish = true;
@@ -79,7 +80,7 @@ async function get_publisher_sightings(publisher_site:string = "fullfact.org", m
     param.append("key",API_key);
 
     let res:Response = await fetch(url_google + '?' + param.toString());
-    let rj:ApiResponse = await res.json();
+    let rj:ApiResponse = <ApiResponse> await res.json();
     let claims:ApiClaim[] = rj.claims;
 
     let cm_pairs:StoreClaim[] = [];
@@ -116,7 +117,7 @@ async function get_publisher_sightings(publisher_site:string = "fullfact.org", m
         else {
             param.set("pageToken",next_page);
             res = await fetch(url_google + '?' + param.toString());
-            rj = await res.json();
+            rj = <ApiResponse> await res.json();
             claims = rj.claims;
         }
     }
@@ -125,9 +126,11 @@ async function get_publisher_sightings(publisher_site:string = "fullfact.org", m
 
 async function fetch_recent_sample(publishers: Set<string>) {
     let db = await getDb();
+    let fetchNum: number = 0;
     //reand recent sample and put into database
     for (let pub of publishers) {
         let pairs = await get_publisher_sightings(pub);
+        fetchNum += pairs.length;
         console.log(`Got ${pairs.length} claim-sentence pairs from ${pub}. `);
         for (let p of pairs) {
             //put p into database, if p exit update, otherwise insert. upsert = true
@@ -153,9 +156,10 @@ async function fetch_recent_sample(publishers: Set<string>) {
             );
         }
     }
+    return fetchNum;
 }
 
-function scheduleRunning() {
+export function scheduleFetch() {
     let now = new Date();
     let night = new Date(
         now.getFullYear(),
@@ -168,6 +172,14 @@ function scheduleRunning() {
     setTimeout(async function() {
         let pubs = await find_many_publishers();
         await fetch_recent_sample(pubs);
-        scheduleRunning();
+        scheduleFetch();
     },msToMidnight);
+}
+
+export async function fetchNow() {
+    //todo
+    console.log("Fetching...");
+    let pubs = await find_many_publishers();
+    console.log(`Found ${pubs.size} publishers.`);
+    return await fetch_recent_sample(pubs);
 }
