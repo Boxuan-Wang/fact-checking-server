@@ -1,5 +1,6 @@
 import { Router } from "express";
 import getEmailService  from "../connections/connmail";
+import { createHash } from "node:crypto";
 import bp from "body-parser";
 import { config } from "dotenv";
 
@@ -19,7 +20,7 @@ emailRoutes.route("/email").post(
         const emailReceiver = req.body.email;
         let emailService = await getEmailService();
         const code:string = Math.random().toString().substring(2,6);
-
+        const hashedCode: string = createHash('sha256').update(code).digest('hex');
         const message = {
             from: senderEmail,
             to: emailReceiver,
@@ -35,7 +36,7 @@ emailRoutes.route("/email").post(
             }
             else {
                 console.log("send email to: " + emailReceiver);
-                res.json({veriCode:code});
+                res.json({veriCode:hashedCode});
             }
         });
     }
