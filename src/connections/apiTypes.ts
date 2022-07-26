@@ -16,7 +16,7 @@ export type ApiClaim = {
     text: string,
     claimant: string,
     claimDate: string,
-    claimrReview: ClaimReview[]
+    claimReview: ClaimReview[]
 };
 
 export type ApiResponse = {

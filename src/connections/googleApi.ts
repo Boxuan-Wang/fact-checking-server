@@ -2,45 +2,54 @@ require("dotenv").config({ path: "./config.env" });
 import  {ApiClaim, Publisher, ClaimReview, ApiResponse, StoreClaim} from "./apiTypes"; 
 import {URLSearchParams} from "url";
 import fetch, { Response } from "node-fetch";
-import bp from "body-parser";
+import bp, { raw } from "body-parser";
 import { createHash } from "crypto";
 import getDb from "./connDb";
 
-const API_key:string = process.env.API_key?process.env.API_key:"";
-const url_google = "https://factchecktools.googleapis.com/v1alpha1/claims:search";
-const human_claim_db_collectin:string = 'human-claims';
+const API_key:string = process.env.API_KEY?process.env.API_KEY:"";
 
-async function find_publisher(query:string, max_age: number): Promise<string[]> {
+const url_google = "https://factchecktools.googleapis.com/v1alpha1/claims:search";
+const human_claim_db_collectin:string = 'human_claims';
+
+async function find_publisher(query:string, max_age: number): Promise<Set<string>> {
+    console.log("API key: "+API_key);
     let param:URLSearchParams = new URLSearchParams();
     param.append("query", query);
     param.append("maxAgeDays", max_age.toString());
     param.append("languageCode", "en");
     param.append("key", API_key);
+    param.append("pageToken","");
 
     let r:Response = await fetch(url_google + '?' + param.toString());
     let rj:ApiResponse = <ApiResponse> await r.json(); 
+    // console.log("rj: " + JSON.stringify(rj));
     let claims:ApiClaim[] = rj.claims;
+    // console.log(claims[0].claimReview);
 
-    let ret: string[] = [];
+    let ret: Set<string> = new Set();
     let finish: boolean = false;
+    let next_page:string = "";
 
     if(!claims || claims.length ===0 ){
         finish = true;
     }
     while(!finish) {
-        let next_page:string = rj.nextPageToken;
+        next_page = rj.nextPageToken;
         for (let c of claims) {
-            let site: string = c.claimrReview[0].publisher.site;
-            ret.concat([site]);
+            // console.log(c.claimReview);
+            let site: string = (c.claimReview)[0].publisher.site;
+            ret.add(site);
         }
         if(!next_page) {
             finish = true;
         }
         else {
+            console.log("Next page: " + next_page);
             //get the next page
             param.set("pageToken", next_page);
             r = await fetch(url_google + '?' + param.toString());
-            claims = (<ApiResponse> await r.json()).claims;
+            rj = <ApiResponse> await r.json();
+            claims = rj.claims;
             if(!claims || claims.length === 0) {
                 console.log("No more page.");
                 finish = true;
@@ -73,22 +82,35 @@ async function find_many_publishers():Promise<Set<string>> {
 
 async function get_publisher_sightings(publisher_site:string = "fullfact.org", max_age:number = 30):Promise<StoreClaim[]> {
     let param:URLSearchParams = new URLSearchParams();
-    param.append("maxAgeDays",max_age.toString());
-    param.append("pageSize","25");
-    param.append("languageCode","en");
+    param.append("maxAgeDays", max_age.toString());
+    param.append("pageSize", "25");
+    param.append("languageCode", "en");
     param.append("reviewPublisherSiteFilter", publisher_site);
-    param.append("key",API_key);
+    param.append("key", API_key);
 
     let res:Response = await fetch(url_google + '?' + param.toString());
     let rj:ApiResponse = <ApiResponse> await res.json();
+    //todo
+    console.log("rj:" + JSON.stringify(rj));
     let claims:ApiClaim[] = rj.claims;
 
     let cm_pairs:StoreClaim[] = [];
     let finished = false;
+    let next_page:string = "";
+
+    if(!claims || claims.length ===0 ){
+        finished = true;
+    }
     while(!finished) {
-        let next_page:string = rj.nextPageToken;
+        next_page = rj.nextPageToken;
+        // console.log("Claims###############################");
+        // console.log(claims[0]);
+        if(!claims || claims.length ===0) {
+            finished = true;
+            break;
+        }
         for (let c of claims) {
-            let claim_review:ClaimReview = c.claimrReview[0];
+            let claim_review:ClaimReview = (c.claimReview)[0];
             let fce_claim_text = claim_review.title;
             let fce_signting = c.text;
 
@@ -97,11 +119,9 @@ async function get_publisher_sightings(publisher_site:string = "fullfact.org", m
             let raw_id = [publisher, claim_review.url,claim_review.reviewDate?claim_review.reviewDate:""]
                 .join(" ");
             
-            let claim_id_hash = createHash('sha256');
-            claim_id_hash.update(raw_id);
-            let claim_id =  claim_id_hash.digest('hex');
+            let claim_id = createHash('sha256').update(raw_id).digest('hex');
 
-            cm_pairs.concat([{
+            cm_pairs.push({
                 "claim_id": claim_id,
                 "claim_org": publisher,
                 "claim_text": fce_claim_text,
@@ -109,7 +129,7 @@ async function get_publisher_sightings(publisher_site:string = "fullfact.org", m
                 "text": fce_signting,
                 "publication": c.claimant,
                 "publication_date": c.claimDate
-            }]);            
+            });            
         }
         if(!next_page) {
             finished = true;

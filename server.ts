@@ -5,6 +5,7 @@ import cors from "cors";
 import bodyparser from "body-parser";
 import { config } from "dotenv";
 import { fetchNow, scheduleFetch } from "./src/connections/googleApi";
+import checkRoute from "./src/routes/checkRoute";
 
 const app = express();
 config({ path: "./config.env" });
@@ -14,6 +15,7 @@ app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended: true}));
 app.use(dbRoutes);
 app.use(emailRoutes);
+app.use(checkRoute);
 
 // get driver connection
 app.listen(port, async () => {
