@@ -11,7 +11,7 @@ const checkRoute:Router = Router();
 checkRoute.use(bp.json());
 checkRoute.use(bp.urlencoded({extended: true}));
 
-checkRoute.route("/check").post(async (req,res) => {
+checkRoute.route("/checkClaim").post(async (req,res) => {
     //first the human-checking-result
     let db_connect = await getDb();
     if(!req) throw new Error("Null/undefined req.");
@@ -38,7 +38,7 @@ checkRoute.route("/check").post(async (req,res) => {
         .collection(human_claim_db_collectin)
         .find(query, 
             {
-                limit: 10,
+                limit: 50,
                 projection: projection,
                 sort: sort
             })
