@@ -26,44 +26,36 @@ emailRoutes.route("/email").post(
 
         db_connection
         .collection("users")
-        .findOne(query, function(err, result) {
+        .findOne(query, async function(err, result) {
             if (err) throw err;
             if(result) {
-                emailUsed = true;
+                res.json({veriCode: "USED_EMAIL"});
             }
             else {
-                emailUsed = false;
+                //start sending email
+                let emailService = await getEmailService();
+                const code:string = Math.random().toString().substring(2,6);
+                const hashedCode: string = createHash('sha256').update(code).digest('hex');
+                const message = {
+                    from: senderEmail,
+                    to: emailReceiver,
+                    subject: "Verify your email for averitect",
+                    text: "Your verification code for email <" + emailReceiver + "> is " + code + ".\n",
+                };
+
+                emailService.sendMail(message, function (err, info) {
+                    if(err) {
+                        console.error(err);
+                        console.log(message);
+                        res.json(err);
+                    }
+                    else {
+                        console.log("send email to: " + emailReceiver + ", and the code is " + code);
+                        res.json({veriCode:hashedCode});
+                    }
+                });
             }
         });
-    
-        
-        if (!emailUsed){
-            //start sending email
-            let emailService = await getEmailService();
-            const code:string = Math.random().toString().substring(2,6);
-            const hashedCode: string = createHash('sha256').update(code).digest('hex');
-            const message = {
-                from: senderEmail,
-                to: emailReceiver,
-                subject: "Verify your email for averitect",
-                text: "Your verification code for email <" + emailReceiver + "> is " + code + ".\n",
-            };
-
-            emailService.sendMail(message, function (err, info) {
-                if(err) {
-                    console.error(err);
-                    console.log(message);
-                    res.json(err);
-                }
-                else {
-                    console.log("send email to: " + emailReceiver + ", and the code is " + code);
-                    res.json({veriCode:hashedCode});
-                }
-            });
-        }
-        else {
-            res.json({veriCode: "USED_EMAIL"});
-        }
     }
 );
 
