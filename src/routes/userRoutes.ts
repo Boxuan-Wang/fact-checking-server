@@ -1,5 +1,6 @@
 import { Router } from "express";
 import getDb from "../connections/connDb";
+import { addUser } from "./historyRoute";
 import { createHash } from "node:crypto";
 import { config } from "dotenv";
 import bp from "body-parser";
@@ -99,6 +100,9 @@ dbRoutes.route("/signUp").post(async function(req,res) {
                     console.log("User " + query.userName + " sign up.");
                 }
             });
+
+            // call function history.ts, add empty check history
+            addUser(newUser.userName);
         }
     });
 });
@@ -114,6 +118,7 @@ dbRoutes.route("/deleteUser").post(async function(req,res) {
             console.log("Deleted user:" + query.userName);
         }
     });
+    //todo: delete history document as well
 });
 
 export default dbRoutes;
