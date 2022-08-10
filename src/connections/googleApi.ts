@@ -10,6 +10,7 @@ const API_key:string = process.env.API_KEY?process.env.API_KEY:"";
 
 const url_google = "https://factchecktools.googleapis.com/v1alpha1/claims:search";
 const human_claim_db_collectin:string = 'human_claims';
+const human_claim_time: number = 200;   //default max age of claims to be fetched
 
 async function find_publisher(query:string, max_age: number): Promise<Set<string>> {
     console.log("API key: "+API_key);
@@ -80,7 +81,7 @@ async function find_many_publishers():Promise<Set<string>> {
     return all_pub_site;
 }
 
-async function get_publisher_sightings(publisher_site:string = "fullfact.org", max_age:number = 30):Promise<StoreClaim[]> {
+async function get_publisher_sightings(publisher_site:string = "fullfact.org", max_age:number = human_claim_time):Promise<StoreClaim[]> {
     let param:URLSearchParams = new URLSearchParams();
     param.append("maxAgeDays", max_age.toString());
     param.append("pageSize", "25");
@@ -103,8 +104,6 @@ async function get_publisher_sightings(publisher_site:string = "fullfact.org", m
     }
     while(!finished) {
         next_page = rj.nextPageToken;
-        // console.log("Claims###############################");
-        // console.log(claims[0]);
         if(!claims || claims.length ===0) {
             finished = true;
             break;
@@ -181,6 +180,7 @@ async function fetch_recent_sample(publishers: Set<string>) {
 
 export function scheduleFetch() {
     let now = new Date();
+    //change time for testing
     let night = new Date(
         now.getFullYear(),
         now.getMonth(),

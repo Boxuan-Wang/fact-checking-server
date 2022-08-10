@@ -1,5 +1,5 @@
 import request from "supertest";
-import dbRoutes from "../routes/dbRoutes";
+import userRoutes from "../routes/userRoutes";
 import express from 'express';
 import getDb  from "../connections/connDb";
 import fetch from "cross-fetch";
@@ -7,7 +7,7 @@ import bodyparser from "body-parser";
 import { Server } from "http";
 
 let app = express();
-app.use(dbRoutes);
+app.use(userRoutes);
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended: true}));
 let testServer: Server;

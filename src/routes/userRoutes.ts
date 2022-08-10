@@ -103,6 +103,7 @@ dbRoutes.route("/signUp").post(async function(req,res) {
     });
 });
 
+//todo: check password before deleting
 dbRoutes.route("/deleteUser").post(async function(req,res) {
     const db_connect = await getDb();
     const query = {userName: req.body.userName};

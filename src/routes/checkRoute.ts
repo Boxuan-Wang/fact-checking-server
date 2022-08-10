@@ -38,7 +38,6 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
         .collection(human_claim_db_collectin)
         .find(query, 
             {
-                limit: 50,
                 projection: projection,
                 sort: sort
             })
