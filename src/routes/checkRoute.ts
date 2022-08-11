@@ -3,6 +3,7 @@ import getDb from "../connections/connDb";
 import bp from "body-parser";
 import { config } from "dotenv";
 import { StoreClaim } from "../connections/apiTypes";
+import { addHistory } from "./historyRoute";
 
 config({path: "config.env"});
 
@@ -11,11 +12,24 @@ const checkRoute:Router = Router();
 checkRoute.use(bp.json());
 checkRoute.use(bp.urlencoded({extended: true}));
 
+/**
+ * POST /check
+ * Post the claim text to get the check result
+ * req body: JSON {query, userName}
+ */
 checkRoute.route("/checkClaim").post(async (req,res) => {
     //first the human-checking-result
     let db_connect = await getDb();
     if(!req) throw new Error("Null/undefined req.");
-    console.log("search string is: "+ req.body.query);
+    const checkClaim: string = req.body.query;
+    const userName: string = req.body.userName;
+
+
+    //record the check history 
+    await addHistory(userName, checkClaim);
+
+    //start check human-result database
+    console.log("search string is: "+ checkClaim);
     const query = { 
         $text: { 
             $search: req.body.query,

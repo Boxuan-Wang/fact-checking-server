@@ -25,18 +25,11 @@ historyRoute.route("/history").post(async (req,res) => {
     //check email in database
     db_connect
     .collection("history")
-    .findOne({userName: req.body.uesrName}, function (err, result) {
+    .findOne({userName: req.body.userName}, function (err, result) {
         if(err) throw err;
-        if(!result) {
-            //todo: response format TBD
-            // res.send("No such user name / or no records found.");
-            res.json({history: []});
-        }
-        else {
-            //start querying
-            const history:HistoryEntry[] = result.history;
-            res.json({history: history}); 
-        }
+        res.json({
+            history: (result?result.history:[])
+        });
     })
 });
 
@@ -51,25 +44,19 @@ export async function addHistory(userName: string, checkClaim: string):Promise<v
         date: Date.now()
     };
 
-    // db_connect
-    // .collection("history")
-    // .insertOne(newHistoryItem, function (err, result) {
-    //     if(err) throw err;
-    // });
-    //should use username as index
     db_connect
     .collection("history")
     .updateOne({userName: userName},
-        {$set: {history: {$concatArrays: ["$history",[newHistoryEntry]]}}},
+        {$push:{history: newHistoryEntry}},
         function (err, res) {
             if(err) throw err;
-            if (res) console.log(`AddHistory result: ${res}`);
+
         })
 
 }
 
 /**
- * Add a document with given username and empty check history
+ * Add a document with given username and empty check history. If already exist, do nothing.
  * @param userName email
  */
 export async function addUser(userName: string):Promise<void> {
@@ -82,9 +69,18 @@ export async function addUser(userName: string):Promise<void> {
 
     db_connect
     .collection("history")
-    .insertOne(newDoc, function (err, res) {
-        if (err) throw err;
+    .findOne({userName: userName}, function (err, res) {
+        if(err) throw err;
+        if(!res) {
+             db_connect
+            .collection("history")
+            .insertOne(newDoc, function (err, res) {
+                if (err) throw err;
+            });
+        }
     });
+
+   
 }
 
 export default historyRoute;

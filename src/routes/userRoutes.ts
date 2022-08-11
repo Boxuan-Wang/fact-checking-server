@@ -114,11 +114,16 @@ dbRoutes.route("/deleteUser").post(async function(req,res) {
     db_connect.collection("users").deleteOne(query, function(err,result) {
         if(err) throw err;
         else {
-            res.send(true);
-            console.log("Deleted user:" + query.userName);
+            db_connect.collection("history").deleteOne(query,
+                function(err2,result2) {
+                    if(err2) throw err;
+                    res.send(true);
+                    console.log("Deleted user:" + query.userName);
+            })
+           
         }
     });
-    //todo: delete history document as well
+    
 });
 
 export default dbRoutes;

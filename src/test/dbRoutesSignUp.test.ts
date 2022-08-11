@@ -40,6 +40,7 @@ afterEach(async () => {
     const dbConn = await getDb();
     await dbConn.collection('users').deleteOne(testSignUpUserQuery);
     await dbConn.collection('users').deleteMany({userName:"test@test.com"});
+    await dbConn.collection('history').deleteMany(testSignUpUserQuery);
 });
 
 test('test sign up successful', async () => {
