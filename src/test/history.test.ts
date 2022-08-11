@@ -34,10 +34,6 @@ afterEach(async () => {
 });
 
 test("add history entry to test user,  check from database", async () => {
-    // const newHistoryEntry:HistoryEntry = {
-    //     claim: "test_claim",
-    //     date: 1234567890
-    // };
     const claimText = "test_claim";
 
     addHistory(test_user_name, claimText);
@@ -54,4 +50,20 @@ test("add history entry to test user,  check from database", async () => {
     expect(db_result[0].claim).toBe(claimText);
     expect(typeof db_result[0].date).toBe("number");  
     
+});
+
+test("add history entry, check from request", async () => {
+    const claimText = "test_claim";
+    addHistory(test_user_name, claimText);
+
+    const response = await request(app)
+    .post("/history")
+    .send({userName: test_user_name})
+    .set('Accept','application/json');
+
+    const responseBody:HistoryEntry[] = response.body;
+    console.log(`History reponse: ${JSON.stringify(responseBody)}`);
+
+    expect(responseBody[0].claim).toBe(claimText);
+    expect(typeof responseBody[0].date).toBe("number");
 });

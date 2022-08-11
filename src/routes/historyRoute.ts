@@ -17,22 +17,25 @@ export type HistoryEntry = {
 /**
  * POST /history
  * Getting a user's check history
- * req body: {userName, }
+ * req body: JSON {userName:  }
+ * res format: JSON {history:  }
  */
 historyRoute.route("/history").post(async (req,res) => {
     const db_connect = await getDb();
     //check email in database
     db_connect
-    .collection("users")
+    .collection("history")
     .findOne({userName: req.body.uesrName}, function (err, result) {
         if(err) throw err;
         if(!result) {
             //todo: response format TBD
-            res.send("No such user name.")
+            // res.send("No such user name / or no records found.");
+            res.json({history: []});
         }
         else {
             //start querying
-
+            const history:HistoryEntry[] = result.history;
+            res.json({history: history}); 
         }
     })
 });
