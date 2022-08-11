@@ -2,6 +2,7 @@ import { Router } from "express";
 import getDb from "../connections/connDb";
 import { config } from "dotenv";
 import bp from "body-parser";
+import { UpdateResult } from "mongodb";
 
 config ({path: "config.env"});
 
@@ -44,15 +45,10 @@ export async function addHistory(userName: string, checkClaim: string):Promise<v
         date: Date.now()
     };
 
-    db_connect
+    await db_connect
     .collection("history")
     .updateOne({userName: userName},
-        {$push:{history: newHistoryEntry}},
-        function (err, res) {
-            if(err) throw err;
-
-        })
-
+        {$push:{history: newHistoryEntry}});
 }
 
 /**
@@ -67,20 +63,15 @@ export async function addUser(userName: string):Promise<void> {
         history: emptyArray
     };
 
-    db_connect
+    const res = await db_connect
     .collection("history")
-    .findOne({userName: userName}, function (err, res) {
-        if(err) throw err;
-        if(!res) {
-             db_connect
-            .collection("history")
-            .insertOne(newDoc, function (err, res) {
-                if (err) throw err;
-            });
-        }
-    });
+    .findOne({userName: userName});
 
-   
+    if(!res) {
+        await db_connect
+        .collection("history")
+        .insertOne(newDoc);
+    } 
 }
 
 export default historyRoute;
