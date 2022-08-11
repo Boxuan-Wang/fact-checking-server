@@ -28,11 +28,11 @@ afterAll(() => {
     
 // });
 
-// afterEach(async () => {
-//     await (await getDb())
-//     .collection("history")
-//     .deleteOne({userName: test_user_name});
-// });
+afterEach(async () => {
+    await (await getDb())
+    .collection("history")
+    .deleteMany({userName: test_user_name});
+});
 
 // test("test addUser", async () => {
 //     (await getDb())
