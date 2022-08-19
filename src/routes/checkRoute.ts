@@ -1,9 +1,11 @@
 import { Router } from "express";
 import getDb from "../connections/connDb";
 import bp from "body-parser";
+import fetch from "node-fetch";
 import { config } from "dotenv";
 import { StoreClaim } from "../connections/apiTypes";
 import { addHistory } from "./historyRoute";
+import {request} from 'http';
 
 config({path: "config.env"});
 
@@ -11,25 +13,28 @@ const human_claim_db_collectin = "human_claims";
 const checkRoute:Router = Router();
 checkRoute.use(bp.json());
 checkRoute.use(bp.urlencoded({extended: true}));
+const FEVER_ADDRESS = "http://128.232.69.0:5100/proofver";
 
 /**
  * POST /check
  * Post the claim text to get the check result
- * req body: JSON {query, userName}
+ * req body: JSON {query, userName, history: boolean}
  */
 checkRoute.route("/checkClaim").post(async (req,res) => {
     //first the human-checking-result
     let db_connect = await getDb();
     if(!req) throw new Error("Null/undefined req.");
     const checkClaim: string = req.body.query;
+    const enableHsitory = req.body.history? req.body.hisory : true;
     const userName: string = req.body.userName;
 
 
     //record the check history 
-    await addHistory(userName, checkClaim);
+    if(enableHsitory) {
+        await addHistory(userName, checkClaim);
+    }
 
     //start check human-result database
-    console.log("search string is: "+ checkClaim);
     const query = { 
         $text: { 
             $search: req.body.query,
@@ -58,13 +63,23 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
         .project(projection);
     
     let human_result:StoreClaim[] = [];
-    // while(human_result.length < 10 && await cursor.hasNext()) {
-    //     human_result.push((await cursor.next()));
-    // }
     human_result =<StoreClaim[]> (await cursor.toArray());
     //then get the result from fever
-    const fever_result = "";
+    let fever_result;
+    await fetch(FEVER_ADDRESS, {
+        method: "POST",
+        body: JSON.stringify({
+            'claim': checkClaim
+        }),
+        headers: {
+            "Content-Type": "application/json",
+          },
+    })
+    .then(res => res.json())
+    .then(data => fever_result = data.output)
+    .catch(err => console.error(err));
     
+    console.log(JSON.stringify(fever_result));
     res.json(
         {
             human_result: human_result,

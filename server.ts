@@ -6,6 +6,7 @@ import bodyparser from "body-parser";
 import { config } from "dotenv";
 import { fetchNow, scheduleFetch } from "./src/connections/googleApi";
 import checkRoute from "./src/routes/checkRoute";
+import historyRoute from "./src/routes/historyRoute";
 
 const app = express();
 config({ path: "./config.env" });
@@ -16,12 +17,13 @@ app.use(bodyparser.urlencoded({extended: true}));
 app.use(userRoutes);
 app.use(emailRoutes);
 app.use(checkRoute);
+app.use(historyRoute);
 
 // get driver connection
 app.listen(port, async () => {
     console.log("Start server! On port: " + port);
-    const num = await fetchNow();
-    console.log(`########\nFetched ${num} claims from google fact check api.\n########`);
+    // const num = await fetchNow();
+    // console.log(`########\nFetched ${num} claims from google fact check api.\n########`);
     scheduleFetch();
   })
 
