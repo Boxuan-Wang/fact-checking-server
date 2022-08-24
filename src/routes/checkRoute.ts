@@ -5,11 +5,14 @@ import fetch from "node-fetch";
 import { config } from "dotenv";
 import { StoreClaim } from "../connections/apiTypes";
 import { addHistory } from "./historyRoute";
-import {request} from 'http';
 
 config({path: "config.env"});
 
 const human_claim_db_collectin = "human_claims";
+const proofver_cache = "proofver_cache";
+const proofver_expire_days = 7;
+const expire_ms = proofver_expire_days * 24 * 60 * 60 * 1000;
+
 const checkRoute:Router = Router();
 checkRoute.use(bp.json());
 checkRoute.use(bp.urlencoded({extended: true}));
@@ -35,9 +38,9 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
     }
 
     //start check human-result database
-    const query = { 
+    const queryHumanResult = { 
         $text: { 
-            $search: req.body.query,
+            $search: checkClaim,
             $caseSensitive: false
         } 
     };
@@ -55,7 +58,7 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
     }
     let cursor = await db_connect
         .collection(human_claim_db_collectin)
-        .find(query, 
+        .find(queryHumanResult, 
             {
                 projection: projection,
                 sort: sort
@@ -65,27 +68,58 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
     let human_result:StoreClaim[] = [];
     human_result =<StoreClaim[]> (await cursor.toArray());
     //then get the result from fever
-    let fever_result;
-    await fetch(FEVER_ADDRESS, {
-        method: "POST",
-        body: JSON.stringify({
-            'claim': checkClaim
-        }),
-        headers: {
-            "Content-Type": "application/json",
-          },
-    })
-    .then(res => res.json())
-    .then(data => fever_result = data.output)
-    .catch(err => console.error(err));
-    
-    console.log(JSON.stringify(fever_result));
-    res.json(
+    let fever_result = "!";
+    const queryCache = {claim: checkClaim};
+
+    //first check database for cached result
+    await db_connect
+    .collection(proofver_cache)
+    .findOne(queryCache, async function(err, result) {
+        if(err) throw err;
+        if(result && Date.now() - result.date <= expire_ms) {
+            //cache hit && within expire date
+            fever_result = result.output;
+        }
+        else {
+            //cache miss
+            await fetch(FEVER_ADDRESS, {
+                method: "POST",
+                body: JSON.stringify({
+                    'claim': checkClaim
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            .then(res => res.json())
+            .then(data => {
+                fever_result = data.output;
+                const time = Date.now();
+                const cache_filter = {claim: checkClaim};
+                const cache_update = {
+                    $set: {
+                        output: fever_result,
+                        date: time
+                    }
+                };
+                //store the output in database
+                db_connect
+                .collection(proofver_cache)
+                .updateOne(cache_filter, cache_update, { upsert: true});
+            })
+            .catch(err => console.error(err));
+        }
+
+        res.json(
         {
             human_result: human_result,
             fever_result: fever_result
         }
     );
+    });
+
+    
+    
 });
 
 export default checkRoute;

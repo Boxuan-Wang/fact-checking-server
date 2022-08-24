@@ -37,3 +37,5 @@ On receiving request `POST /email` with body `{email: #EMAIL#}`, emailRoutes wil
 
 ## checkRoutes.ts
 *checkRoute.ts* handles request `POST /check` with body `{query:#CLAIM#}`. It will first use the engine to check and then search in the human result database. The response is JSON `{human_result: HUMAN, fever_result: #MACHINE#}`
+
+One problem of the checking engine is that it does not provide any source of the evidence, which makes it quite confusing, because the evidence is usually similar to the claim. As observed, the WIKI data used by the model does not contain source link and the generation of evidence is in black box (I guess). 

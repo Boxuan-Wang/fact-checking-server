@@ -22,8 +22,8 @@ app.use(historyRoute);
 // get driver connection
 app.listen(port, async () => {
     console.log("Start server! On port: " + port);
-    // const num = await fetchNow();
-    // console.log(`########\nFetched ${num} claims from google fact check api.\n########`);
+    const num = await fetchNow();
+    console.log(`########\nFetched ${num} claims from google fact check api.\n########`);
     scheduleFetch();
   })
 
