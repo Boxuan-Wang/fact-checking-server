@@ -68,7 +68,7 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
     let human_result:StoreClaim[] = [];
     human_result =<StoreClaim[]> (await cursor.toArray());
     //then get the result from fever
-    let fever_result = "!";
+    let fever_result = {output: "", evidence: ""};
     const queryCache = {claim: checkClaim};
 
     //first check database for cached result
@@ -78,7 +78,10 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
         if(err) throw err;
         if(result && Date.now() - result.date <= expire_ms) {
             //cache hit && within expire date
-            fever_result = result.output;
+            fever_result ={
+                output: result.output,
+                evidence: result.evidence
+            }
         }
         else {
             //cache miss
@@ -93,12 +96,16 @@ checkRoute.route("/checkClaim").post(async (req,res) => {
             })
             .then(res => res.json())
             .then(data => {
-                fever_result = data.output;
+                fever_result = {
+                    output: data.output,
+                    evidence: data.evidence
+                }
                 const time = Date.now();
                 const cache_filter = {claim: checkClaim};
                 const cache_update = {
                     $set: {
-                        output: fever_result,
+                        output: fever_result.output,
+                        evidence : fever_result.evidence,
                         date: time
                     }
                 };
